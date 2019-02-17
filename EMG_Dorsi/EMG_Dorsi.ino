@@ -1,62 +1,76 @@
 #include <SimpleKalmanFilter.h>
 #include <Statistic.h>
 
-SimpleKalmanFilter Jinesh(2, 2, 0.001);
-Statistic myStats;
+SimpleKalmanFilter Jineshd(2, 2, 0.001), Jineshp(2, 10, 0.001);
+Statistic d_stats, p_stats;
 
-uint16_t val=0, Kalman_Estimate=0, i=0, j=0, k=0, op =0;
-double mean=0, stddev=0, threshold=0;
+uint16_t i=0;
+
+uint16_t d=0, Dorsi_Estimate=0;
+double d_mean=0, d_stddev=0, d_threshold=0;
+
+uint16_t p=0, Plantar_Estimate=0;
+double p_mean=0, p_stddev=0, p_threshold=0;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.flush();
-  pinMode(A0,OUTPUT);
-  myStats.clear();
+  d_stats.clear();
+  p_stats.clear();
   delay(1000);
   Serial.flush();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  val=analogRead(A0);
+  d = analogRead(A0);
+  p = analogRead(A1);
 
-  Kalman_Estimate = Jinesh.updateEstimate(val);
+  Dorsi_Estimate = Jineshd.updateEstimate(d);
+  Plantar_Estimate = Jineshp.updateEstimate(p);
   
-  i++;j++;
+  i++;
   if(i==10)
   {
-    Serial.print(val);  
-    Serial.print('\t');
-    Serial.print(Kalman_Estimate);
-    Serial.print('\t');
+    
     if(millis()<10000)
     {
-      myStats.add(Kalman_Estimate);
-      mean = myStats.average();
-      stddev = myStats.pop_stdev();
-      threshold = (mean+(3*stddev));
+      d_stats.add(Dorsi_Estimate);
+      d_mean = d_stats.average();
+      d_stddev = d_stats.pop_stdev();
+      d_threshold = (d_mean+(3*d_stddev));
+
+      
+      p_stats.add(Plantar_Estimate);
+      p_mean = p_stats.average();
+      p_stddev = p_stats.pop_stdev();
+      p_threshold = (p_mean+(6*p_stddev));      
     }
-    Serial.println(threshold);
-    if (millis()>12000)
-    {
-      if(Kalman_Estimate>threshold)
-      {
-        //Serial.println('1');
-      }
-      else
-      {
-        //Serial.println('0');
-      }
-    }
-/*    Serial.print('\t');
-    Serial.println(op);
-    if(Kalman_Estimate > 45)
-        Serial.println("Tight");
-    else if(Kalman_Estimate > 15)
-        Serial.println("Loose");
-    else
-        Serial.println("Jinesh DEAD");  */
-    i=0;
+    
+    /*
+    Serial.print(d);  
+    Serial.print('\t');
+    Serial.print(Dorsi_Estimate);
+    Serial.print('\t');
+    Serial.print(d_threshold);
+    Serial.print('\t');
+    
+    Serial.print(p);  
+    Serial.print('\t');
+    Serial.print(Plantar_Estimate);
+    Serial.print('\t');
+    Serial.print(p_threshold);
+    Serial.print('\t');*/
+  
+  if((Dorsi_Estimate - d_threshold)>0)   
+    Serial.println("Dorsiflexion");
+  else if(((Dorsi_Estimate - d_threshold)<0) && ((Plantar_Estimate - p_threshold)>0))
+    Serial.println("Plantarflexion");
+  else if(((Dorsi_Estimate - d_threshold)<0) && ((Plantar_Estimate - p_threshold)<0))
+    Serial.println("No movement");
+      
+  i=0;
   }
   
   delay(5);
