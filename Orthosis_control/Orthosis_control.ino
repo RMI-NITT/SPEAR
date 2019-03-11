@@ -29,22 +29,17 @@ void hold_all()
 void setup()
 {
   hold_all();
+  pinMode(3, HIGH);
+  pinMode(2, HIGH);
+}
+
+void inflate_tick(int n)
+{
+  inflate(n);
+  delay(50);
+  hold(n);
 }
 
 void loop() 
 {
-  inflate(1);
-  delay(5000);
-  exhaust(1);
-  delay(2500);
-  inflate(2);
-  delay(5000);
-  exhaust(2);
-  delay(2500);
-  inflate(1);
-  inflate(2);
-  hold_all();
-  exhaust(1);
-  exhaust(2);
-  delay(2500);                         
 }

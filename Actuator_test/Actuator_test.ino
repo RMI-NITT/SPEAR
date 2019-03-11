@@ -4,13 +4,13 @@ int v2 = 13;
 void setup() {
   pinMode(v1, OUTPUT);
   pinMode(v2, OUTPUT);
+  digitalWrite(v2, HIGH);
 }
 
-void loop() {
+void loop() 
+{
   digitalWrite(v1, HIGH);
-  digitalWrite(v2, LOW);
-  delay(1000);                       
-  digitalWrite(v2, HIGH);    
-  digitalWrite(v1, LOW);  
-  delay(1000);                       
+  delay(50);
+  digitalWrite(v1,LOW);                      
+  delay(1000);
 }
