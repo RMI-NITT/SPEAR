@@ -24,8 +24,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  d = analogRead(A0);
-  p = analogRead(A1);
+  d = analogRead(A1);
+  p = analogRead(A2);
 
   Dorsi_Estimate = Jineshd.updateEstimate(d);
   Plantar_Estimate = Jineshp.updateEstimate(p);
@@ -34,21 +34,22 @@ void loop() {
   if(i==10)
   {
     
+    
     if(millis()<10000)
     {
-      d_stats.add(Dorsi_Estimate);
+      Serial.println("Calibrating...");
+      d_stats.add(d);
       d_mean = d_stats.average();
       d_stddev = d_stats.pop_stdev();
-      d_threshold = (d_mean+(3*d_stddev));
+      d_threshold = (d_mean+(5*d_stddev));
 
       
-      p_stats.add(Plantar_Estimate);
+      p_stats.add(p);
       p_mean = p_stats.average();
       p_stddev = p_stats.pop_stdev();
-      p_threshold = (p_mean+(6*p_stddev));      
+      p_threshold = (p_mean+(2*p_stddev));      
     }
-    
-    /*
+/*
     Serial.print(d);  
     Serial.print('\t');
     Serial.print(Dorsi_Estimate);
@@ -56,22 +57,21 @@ void loop() {
     Serial.print(d_threshold);
     Serial.print('\t');
     
-    Serial.print(p);  
+    Serial.print(p);
     Serial.print('\t');
     Serial.print(Plantar_Estimate);
     Serial.print('\t');
-    Serial.print(p_threshold);
-    Serial.print('\t');*/
-  
-  if((Dorsi_Estimate - d_threshold)>0)   
-    Serial.println("Dorsiflexion");
-  else if(((Dorsi_Estimate - d_threshold)<0) && ((Plantar_Estimate - p_threshold)>0))
-    Serial.println("Plantarflexion");
-  else if(((Dorsi_Estimate - d_threshold)<0) && ((Plantar_Estimate - p_threshold)<0))
-    Serial.println("No movement");
-      
+    Serial.println(p_threshold);*/
+  if(millis()>10000)
+  {
+    if((Dorsi_Estimate - d_threshold)>0)   
+      Serial.println("Dorsiflexion");
+    else if(((Dorsi_Estimate - d_threshold)<0) && ((Plantar_Estimate - p_threshold)>0))
+      Serial.println("Plantarflexion");
+    else if(((Dorsi_Estimate - d_threshold)<0) && ((Plantar_Estimate - p_threshold)<0))
+      Serial.println("No movement");
+  }   
   i=0;
   }
-  
   delay(5);
 }
