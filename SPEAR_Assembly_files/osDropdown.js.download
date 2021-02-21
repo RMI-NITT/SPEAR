@@ -1,0 +1,165 @@
+// A customized substitute for Bootstrap's dropdown plugin
+// https://github.com/twbs/bootstrap/blob/master/js/dropdown.js
+
+(function ($) {
+  'use strict';
+
+  // OSDROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop';
+  var toggle = '[data-toggle="os-dropdown"]';
+  var OsDropdown = function (element) {
+    $(element).on('click.os-dropdown', this.toggle);
+  };
+
+  OsDropdown.VERSION = '3.3.5';
+
+  function getParent($this) {
+    var selector = $this.attr('data-target');
+
+    if (!selector) {
+      selector = $this.attr('href');
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, ''); // strip for ie7
+    }
+
+    var $parent = selector && $(selector);
+
+    return $parent && $parent.length ? $parent : $this.parent();
+  }
+
+  function clearMenus(e) {
+    // only clear the menu if the main (usually the left) button is pressed
+    if (e && e.button) {
+      return;
+    }
+
+    $(backdrop).remove();
+    $(toggle).each(function () {
+      var $this = $(this);
+      var $parent = getParent($this);
+      var relatedTarget = { relatedTarget: this };
+
+      if (!$parent.hasClass('open')) return;
+
+      if (e && e.type === 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return;
+
+      $parent.trigger(e = $.Event('hide.os-dropdown', relatedTarget));
+
+      if (e.isDefaultPrevented()) return;
+
+      $this.attr('aria-expanded', 'false');
+      $parent.removeClass('open').trigger($.Event('hidden.os-dropdown', relatedTarget));
+    });
+  }
+
+  OsDropdown.prototype.toggle = function (e) {
+    var $this = $(this);
+
+    if ($this.is('.disabled, :disabled')) return;
+
+    var $parent = getParent($this);
+    var isActive = $parent.hasClass('open');
+
+    clearMenus();
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus);
+      }
+
+      var relatedTarget = { relatedTarget: this };
+      $parent.trigger(e = $.Event('show.os-dropdown', relatedTarget));
+
+      if (e.isDefaultPrevented()) return;
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true');
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.os-dropdown', relatedTarget));
+    }
+
+    return false;
+  };
+
+  /**
+   * The dropdown only handles keydown events if the div with class os-dropdown
+   * also has class handle-keydowns.
+   */
+  OsDropdown.prototype.keydown = function (e) {
+    var $this = $(this);
+    var $parent = getParent($this);
+    var handleKeydowns = $parent.hasClass('handle-keydowns');
+
+    if (handleKeydowns) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if ($this.is('.disabled, :disabled')) return;
+
+      var isActive = $parent.hasClass('open');
+
+      if (!isActive && e.which !== 27 || isActive && e.which === 27) {
+        if (e.which === 27) $parent.find(toggle).trigger('focus');
+        return $this.trigger('click');
+      }
+
+      var desc = ' li:not(.disabled):visible a';
+      var $items = $parent.find('.dropdown-menu' + desc);
+
+      if (!$items.length) return;
+
+      var index = $items.index(e.target);
+
+      if (e.which === 38 && index > 0) index--;         // up
+      if (e.which === 40 && index < $items.length - 1) index++;         // down
+      if (!~index) index = 0;
+
+      $items.eq(index).trigger('focus');
+    }
+  };
+
+  // OSDROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this);
+      var data = $this.data('.os-dropdown');
+
+      if (!data) $this.data('.os-dropdown', (data = new OsDropdown(this)));
+      if (typeof option === 'string') data[option].call($this);
+    });
+  }
+
+  var old = $.fn.osDropdown;
+
+  $.fn.osDropdown = Plugin;
+  $.fn.osDropdown.Constructor = OsDropdown;
+
+  // OSDROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.osDropdown.noConflict = function () {
+    $.fn.osDropdown = old;
+    return this;
+  };
+
+  // APPLY TO ONSHAPE DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.os-dropdown', clearMenus)
+    .on('click.os-dropdown', '.os-dropdown form', function (e) { e.stopPropagation(); })
+    .on('click.os-dropdown', toggle, OsDropdown.prototype.toggle)
+    .on('keydown.os-dropdown', toggle, OsDropdown.prototype.keydown)
+    .on('keydown.os-dropdown', '.dropdown-menu', OsDropdown.prototype.keydown);
+
+}(jQuery));
