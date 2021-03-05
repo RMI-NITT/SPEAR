@@ -10,3 +10,7 @@
 <a href="https://www.youtube.com/watch?v=0MvOgEBvByQ&list=PL44ElmNkyTvBkK0XeyDZ0ApXayw_p0Ibq&index=23">SPEAR Introduction</a>
 <br>
 <a href="https://www.youtube.com/watch?v=0MvOgEBvByQ&list=PL44ElmNkyTvBkK0XeyDZ0ApXayw_p0Ibq&index=24">SPEAR Working Video</a>
+<br>
+<a href="https://www.youtube.com/watch?v=SkU-yHnwb48&list=PL44ElmNkyTvCRuWAIcXDtp5S97rujg1kM&index=5">SPEAR Graphical Interface</a>
+<br>
+<a href="https://www.youtube.com/watch?v=TKFv4CyoDiE&list=PL44ElmNkyTvCRuWAIcXDtp5S97rujg1kM&index=6">SPEAR Project Display</a>
